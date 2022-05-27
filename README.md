@@ -1,2 +1,7 @@
-# Regmodels
-Regression model 
+# Statistic with R 
+
+
+
+
+
+
