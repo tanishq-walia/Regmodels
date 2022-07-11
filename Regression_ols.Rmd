@@ -1,0 +1,198 @@
+---
+title: "Linear Regression"
+author: "Tikam Singh"
+date: '2022-01-10'
+output: html_document
+info:   "Produced by Rmarkdown"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# Helper packages
+library(dplyr)    # for data manipulation
+library(ggplot2)  # for awesome graphics
+
+# Modeling packages
+library(caret)    # for cross-validation, etc.
+
+# Model interpretability packages
+library(vip)      # variable importance
+library(AmesHousing)   
+library(rsample)   
+
+```
+
+```{r}
+set.seed(123)
+ames <- AmesHousing::make_ames()
+split <- initial_split(ames, prop = 0.7, 
+                       strata = "Sale_Price")
+ames_train  <- training(split)
+ames_test   <- testing(split)
+```
+
+### Regression (Gr_Liv_Area) and sale price
+
+-   With the Ames housing data, suppose we wanted to model a linear relationship between the total above ground living space of a home (Gr_Liv_Area) and sale price (Sale_Price). \#### To perform an OLS regression model in R we can use the lm() function:
+
+```{r}
+
+
+model1 <- lm(Sale_Price ~ Gr_Liv_Area, data = ames_train)
+summary(model1)
+
+sigma(model1)    # RMSE
+        
+ sigma(model1)^2  #MSE        
+```
+
+------------------------------------------------------------------------
+
+-   t value = Estimate / Std. Error The reported t-statistics measure the number of standard deviations each coefficient is away from 0.
+
+-   Thus, large t-statistics (greater than two in absolute value, say roughly indicate statistical significance at the α=0.05 level. The p-values for these tests are also reported by summary() in the column labeled Pr(\>\|t\|). \*\*\*
+
+#### Drawbacks Of OLS Linear Regression
+
+------------------------------------------------------------------------
+
+-   One drawback of the LS procedure in linear regression is that it only provides estimates of the coefficients; it does not provide an estimate of the error variance\
+    σ\^2 2.LS also makes no assumptions about the random errors.
+
+-   These assumptions are important for inference and in estimating the error variance which we're assuming is a constant value σ\^2.
+
+Most statistical software, including R, will include estimated standard errors, t-statistics, etc. as part of its regression output. However, it is important to remember that such quantities depend on three major assumptions of the linear regression model:
+
+> -   Independent observations
+>
+> -   The random errors have mean zero, and constant variance
+>
+> -   The random errors are normally distributed
+
+If any or all of these assumptions are violated, \|then remedial measures need to be taken. \|For instance, weighted least squares (and other procedures) can \|be used when the constant variance assumption is violated. \|Transformations (of both the response and features) can also help \|to correct departures from these assumptions. \|The residuals are extremely useful in helping to identify \|how parametric models depart from such assumptions.
+
+Assessing model accuracy
+
+we have fited main effects models to the Ames housing data: a single predictor, But the question remains, which model is "best"? To answer this question we have to define what we mean by "best". In our case, we'll use the RMSE metric and cross-validation to determine the "best" model. We can use the caret::train() function to train a linear model (i.e., method = "lm") using cross-validation (or a variety of other validation methods). In practice, a number of factors should be considered in determining a "best" model (e.g., time constraints, model production cost, predictive accuracy, etc.). The benefit of caret is that it provides built-in cross-validation capabilities, whereas the lm() function does not19. The following code chunk uses caret::train() to refit model1 using 10-fold cross-validation:
+
+```{r message=TRUE, warning=FALSE, paged.print=FALSE}
+# Train model using 10-fold cross-validation
+
+set.seed(123)  # for reproducibility
+    cv_model1 <- train(
+                        form = Sale_Price ~ Gr_Liv_Area, 
+                        data = ames_train, 
+                        method = "lm",
+                        trControl = trainControl(method = "cv", number = 10)
+                      )
+summary(cv_model1)
+```
+
+perform cross-validation on the other two models in a similar fashion, which we do in the code chunk below.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# model 2 CV
+set.seed(123)
+cv_model2 <- train(
+                    Sale_Price ~ Gr_Liv_Area + Year_Built, 
+                    data = ames_train, 
+                    method = "lm",
+                    trControl = trainControl(method = "cv", number = 10)
+                  )
+
+# model 3 CV
+set.seed(123)
+cv_model3 <- train(
+                    Sale_Price ~ ., 
+                    data = ames_train, 
+                    method = "lm",
+                    trControl = trainControl(method = "cv", number = 10)
+                  )
+
+
+# Extract out of sample performance measures
+summary(resamples(list(
+                        model1 = cv_model1, 
+                        model2 = cv_model2, 
+                        model3 = cv_model3
+                      )
+                  )
+        )
+```
+
+Model concerns As previously stated, linear regression has been a popular modeling tool due to the ease of interpreting the coefficients. However, linear regression makes several strong assumptions that are often violated as we include more predictors in our model. Violation of these assumptions can lead to flawed interpretation of the coefficients and prediction results.
+
+1.  Linear relationship
+
+-   Linear regression assumes a linear relationship between the predictor and the response variable. However,non-linear relationships can be made linear (or near-linear) by applying transformations to the response and/or predictors.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+p1 <- ggplot(ames_train, aes(Year_Built, Sale_Price)) + 
+              geom_point(size = 1, alpha = .4) +
+              geom_smooth(se = FALSE) +
+              scale_y_continuous("Sale price", labels = scales::dollar) +
+              xlab("Year built") +
+              ggtitle(paste("Non-transformed variables with a\n",
+                            "non-linear relationship."))
+
+p2 <- ggplot(ames_train, aes(Year_Built, Sale_Price)) + 
+            geom_point(size = 1, alpha = .4) + 
+            geom_smooth(method = "lm", se = FALSE) +
+            scale_y_log10("Sale price", labels = scales::dollar, 
+                          breaks = seq(0, 400000, by = 100000)) +
+            xlab("Year built") +
+            ggtitle(paste("Transforming variables can provide a\n",
+                          "near-linear relationship."))
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+```
+
+2.  Constant variance among residuals
+
+-   If the error variance is not constant, the p-values and confidence intervals for the coefficients will be invalid. Similar to the linear relationship assumption, non-constant variance can often be resolved with variable transformations or by including additional predictors.
+
+3.  No autocorrelation
+
+-   Linear regression assumes the errors are independent and uncorrelated. If in fact, there is correlation among the errors, then the estimated standard errors of the coefficients will be biased leading to prediction intervals being narrower than they should be
+
+4.  More observations than predictors
+
+5.  when the number of features exceeds the number of observations (p\>np\>n), the OLS estimates are not obtainable. To resolve this issue an analyst can remove variables one-at-a-time until p\<np\<n.
+
+6.  *Collinearity*
+
+    -   Collinearity refers to the situation in which two or more predictor variables are closely related to one another. The presence of collinearity can pose problems in the OLS, since it can be difficult to separate out the individual effects of collinear variables on the response. In fact, collinearity can cause predictor variables to appear as statistically insignificant when in fact they are significant
+
+    `Garage_Area` and `Garage_Cars` are two variables that have a correlation of 0.89 and both variables are strongly related to our response variable (`Sale_Price`). Looking at our full model where both of these variables are included, we see that `Garage_Cars` is found to be statistically significant but `Garage_Area` is not:
+
+    ```{r}
+
+    # fit with two strongly correlated variables
+    summary(cv_model3) %>%
+                    broom::tidy() %>%
+                    filter(term %in% c("Garage_Area", "Garage_Cars"))
+    ```
+
+However, if we refit the full model without `Garage_Cars`, the coefficient estimate for `Garage_Area` increases two fold and becomes statistically significant.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+
+# model without Garage_Area
+set.seed(123)
+          mod_wo_Garage_Cars <- train(
+                                        Sale_Price ~ ., 
+                                        data = select(ames_train, -Garage_Cars), 
+                                        method = "lm",
+                                        trControl = trainControl(method = "cv",
+                                                                 number = 10)
+                                    )
+
+summary(mod_wo_Garage_Cars) %>%
+                        broom::tidy() %>%
+                        filter(term == "Garage_Area")
+```
+
+##### This reflects the instability in the linear regression model caused by between-predictor relationships; this instability also gets propagated directly to the model predictions
