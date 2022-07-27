@@ -92,7 +92,9 @@ By 2023, there will be 1.6 networked mobile devices and connections per person.*
 ## Connect with me  
 <div align="center">
 <a href="https://walia.tanishq@gmail.com" target="_blank">
-
+</a>  
+</div>  
+  
 <br />
 
 ----
