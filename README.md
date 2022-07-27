@@ -2,7 +2,7 @@
 <div align="left">
 <img src="https://cdn.dribbble.com/users/506824/screenshots/2188701/media/db38cf1327746a9e9a7d567ec6d92aca.gif" align="center" style="width: 20%" />
 </div>  
-### **<div align="center">I'm Tikam Walia, a Data Scientist 👨‍💻 working remotely since the Covid-19 wave. 🚀</div>  
+### <div align="center">I'm Tikam Walia, a Data Scientist 👨‍💻 working remotely since the Covid-19 wave. 🚀</div>  
   
 
 - 🔭 I’m currently working on [ R and Python]  
