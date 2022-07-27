@@ -1,5 +1,8 @@
-<div align="center">
-<img src="https://cdn.dribbble.com/users/506824/screenshots/2188701/media/db38cf1327746a9e9a7d567ec6d92aca.gif" align="center" style="width: 25%" />
+<div align="left">
+<img src="
+https://data-flair.training/blogs/wp-content/uploads/sites/2/2018/02/Python-Libraries-for-Data-Science2.jpg
+
+https://cdn.dribbble.com/users/506824/screenshots/2188701/media/db38cf1327746a9e9a7d567ec6d92aca.gif" align="center" style="width: 25%" />
 </div>  
   
 
@@ -68,3 +71,27 @@ By 2023, there will be 1.6 networked mobile devices and connections per person.*
 <br/>  
 
 
+## Github Stats  
+  
+
+<br/>  
+
+
+## Recent Blog Posts  
+  
+
+<br/>  
+
+  
+
+<br/>  
+
+  
+
+<br/>  
+
+
+<br />
+
+----
+<div align="center">Generated using <a href="https://profilinator.rishav.dev/" target="_blank">Github Profilinator</a></div>
