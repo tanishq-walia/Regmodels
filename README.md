@@ -40,13 +40,6 @@ By 2023, there will be 1.6 networked mobile devices and connections per person.*
 <img style="margin: 10px" src="https://profilinator.rishav.dev/skills-assets/oracle-original.svg" alt="Oracle" height="25" />  
 </div>
 
-</td><td valign="top" width="33%">
-
-
-
-</td><td valign="top" width="33%">
-
-
 
 </td></tr></table>  
 
